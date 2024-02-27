@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body {
+            background-image: url('https://th.bing.com/th/id/R.f992c76b85651ba736d6119daea75e98?rik=Vp978IrZ8eRtLA&pid=ImgRaw&r=0');
+            background-repeat: no-repeat;
+            background-size: cover;
+	    
+        }
+        .container{
+	    display: flex;
+	    justify-content: space-around;
+	}
+    </style>
+</head>
+
+<body style="color:#BDBDBD">
+    <h2>Stan magazynowy Guitars4Life</h2>
+   <div class="">
+       <div id="guitars">
+    
+        <h3>Wybierz tabelę do wyświetlenia</h3>
+        <button onclick="displayGuitars()">Wyświetl gitary</button>
+        
+    </div>
+	 
+    <div id="amps">
+	<button onclick="displayAmps()">Wyświetl wzmacniacze</button>
+    </div>
+
+    </div>
+    <div>
+        <h3>Dodaj gitarę</h3>
+        <form onsubmit="event.preventDefault(); addGuitar();">
+            <label for="add-name">Nazwa:</label><br>
+            <input type="text" id="add-name" name="add-name"><br>
+            <label for="add-quantity">Ilość:</label><br>
+            <input type="number" id="add-quantity" name="add-quantity"><br>
+	    <label for="add-price">Cena:</label><br>
+            <input type="number" id="add-price" name="add-price"><br>
+            <input type="submit" value="Dodaj">
+        </form>
+
+    <h3>Edytuj gitarę</h3>
+    <form onsubmit="event.preventDefault(); editGuitar();">
+     	<label for="edit-id">ID:</label><br>
+        <input type="text" id="edit-id" name="edit-id"><br>
+     	<label for="edit-name">Nazwa:</label><br>
+        <input type="text" id="edit-name" name="edit-name"><br>
+   	<label for="edit-quantity">Ilość:</label><br>
+        <input type="number" id="edit-quantity" name="edit-quantity"><br>
+	<label for="edit-price">Cena:</label><br>
+        <input type="number" id="edit-price" name="edit-price"><br>
+        <input type="submit" value="Edytuj">
+    </form>
+
+    <h3>Usuń gitarę</h3>
+    <form onsubmit="event.preventDefault(); deleteGuitar();">
+  	<label for="delete-id">ID:</label><br>
+        <input type="text" id="delete-id" name="delete-id"><br>
+        <input type="submit" value="Usuń">
+    </form>
+	
+    </div>
+  </div>
+    <script>
+    // Wyświetl gitary
+   function displayGuitars() {
+   fetch('http://localhost:5000/api/guitars')
+        .then(response => response.json())
+        .then(data => {
+            const guitarsDiv = document.getElementById('guitars');
+            while (guitarsDiv.firstChild) {
+                guitarsDiv.removeChild(guitarsDiv.firstChild);
+            }
+            data.forEach(guitar => {
+                const p = document.createElement('p');
+                p.textContent = `${guitar.id}. GUITAR: ${guitar.name}, Ilość: ${guitar.quantity}, Cena:${guitar.price} PLN`;
+                guitarsDiv.appendChild(p);
+            });
+        });
+}
+
+    // Wyświetl wzmacniacze
+    function displayAmps(){
+    fetch('http://localhost:5000/api/amps')
+        .then(response => response.json())
+        .then(data => {
+            const ampsDiv = document.getElementById('amps');
+            while (ampsDiv.firstChild) {
+                ampsDiv.removeChild(ampsDiv.firstChild);
+            }
+            data.forEach(amp => {
+                const p = document.createElement('p');
+                p.textContent = `${amp.id}. AMP: ${amp.name}, Ilość: ${amp.quantity}, Cena:${amp.price} PLN`;
+                ampsDiv.appendChild(p);
+            });
+        });
+}
+
+    // Dodaj gitarę
+    function addGuitar() {
+    const name = document.getElementById('add-name').value;
+    const quantity = document.getElementById('add-quantity').value;
+    const price = document.getElementById('add-price').value;
+    const newGuitar = {name: name, quantity: quantity, price: price};
+    fetch('http://localhost:5000/guitars/add', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(newGuitar),
+    }).then(() => displayGuitars()); // Odśwież gitary po dodaniu
+}
+
+// Edytuj gitarę
+function editGuitar() {
+    const id = document.getElementById('edit-id').value;
+    const name = document.getElementById('edit-name').value;
+    const quantity = document.getElementById('edit-quantity').value;
+    const price = document.getElementById('edit-price').value;
+    const updatedGuitar = {id: id, name: name, quantity: quantity, price: price};
+    fetch(`http://localhost:5000/guitars/edit/${updatedGuitar.id}`, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(updatedGuitar),
+    }).then(() => displayGuitars()); // Odśwież gitary po edycji
+}
+
+// Usuń gitarę
+function deleteGuitar() {
+    const id = document.getElementById('delete-id').value;
+    fetch(`http://localhost:5000/guitars/delete/${id}`, {
+        method: 'DELETE',
+    }).then(() => displayGuitars()); // Odśwież gitary po usunięciu
+}
+
+
+    </script>
+</body>
+</html>
